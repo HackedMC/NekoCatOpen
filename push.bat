@@ -1,3 +1,4 @@
+echo Hello Im Dimples
 git init
 git add .
 git commit -m "Hacked by 白星zzzzzz"
