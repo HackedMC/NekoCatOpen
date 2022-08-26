@@ -1,5 +1,5 @@
 git init
 git add .
-git commit -m "msg"
+git commit -m "Hacked by 白星zzzzzz"
 git push -f
 pause
