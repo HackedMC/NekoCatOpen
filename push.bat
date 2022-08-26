@@ -1,6 +1,7 @@
-echo Hello Im 白星zzzzzz
+echo Hello Im Dimples
+echo 字体编码
 git init
 git add .
-git commit -m "Hacked by 白星zzzzzz"
+git commit -m "Hacked by Dimples"
 git push -f
 pause
