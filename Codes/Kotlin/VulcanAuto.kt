@@ -1,32 +1,35 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.vulcan
 
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.Aura
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.minecraft.entity.Entity
 import net.minecraft.potion.Potion
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
 class VulcanAuto : SpeedMode("VulcanAuto") {
-    var Mode = "Hop"
+    var Mode = "Fast"
     private var level = 1
     private var moveSpeed = 0.2873
     private var lastDist = 0.0
     private var timerDelay = 0
     private var Ticks = 0
     private var HurtTime = 0
+    private var airMove = 0
     private val HurtTimeValue = IntegerValue("HurtTime", 2, 2, 10)
     private fun getEntity(interactEntity: Entity): Boolean {
-        val aura = LiquidBounce.moduleManager[Aura::class.java] as Aura
+        val aura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
         if(aura.state && aura.target != null){
             HurtTime = HurtTimeValue.get()
         }else if(Ticks >= 20 && HurtTime > 0){
@@ -57,12 +60,36 @@ class VulcanAuto : SpeedMode("VulcanAuto") {
         level = 0
         Ticks = 0
         HurtTime = 0
-        Mode = "Hop"
+        Mode = "Fast"
     }
+
+    override fun onMotion() {}
+
     override fun onUpdate() {
         if(!getEntity(mc.thePlayer)){
-            mc.timer.timerSpeed = 1.00f
-            if (Math.abs(mc.thePlayer.movementInput.moveStrafe) < 0.1f) {
+            if(Mode == "BHop" && mc.thePlayer.onGround){
+                LiquidBounce.hud.addNotification(Notification("Switch Fast Mode.", Notification.Type.WARNING))
+                Mode = "Fast"
+            }
+        }
+        else{
+            if(Mode == "Fast" && getEntity(mc.thePlayer) && mc.thePlayer.onGround){
+                LiquidBounce.hud.addNotification(Notification("Switch BHop Mode.", Notification.Type.SUCCESS))
+                Mode = "BHop"
+            }
+        }
+
+        if (Mode == "Fast") {
+            mc.timer.timerSpeed = 1.05f
+            if (airMove >= 2){
+                mc.thePlayer.jumpMovementFactor = 0.0230f
+                if(airMove >= 13 && airMove % 8 == 0){
+                    mc.thePlayer.motionY = -0.32 - 0.004 * Math.random()
+                    mc.thePlayer.jumpMovementFactor = 0.0260f
+                }
+            }
+            airMove++;
+            if (abs(mc.thePlayer.movementInput.moveStrafe) < 0.1f) {
                 mc.thePlayer.jumpMovementFactor = 0.0265f
             }else {
                 mc.thePlayer.jumpMovementFactor = 0.0244f
@@ -74,7 +101,6 @@ class VulcanAuto : SpeedMode("VulcanAuto") {
                 MovementUtils.strafe(0.215f)
             }
             if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-                mc.timer.timerSpeed = 1.25f
                 mc.gameSettings.keyBindJump.pressed = false
                 mc.thePlayer.jump()
                 MovementUtils.strafe()
@@ -86,30 +112,9 @@ class VulcanAuto : SpeedMode("VulcanAuto") {
                 mc.thePlayer.motionX = 0.0
                 mc.thePlayer.motionZ = 0.0
             }
-            if(Mode == "BHop"){
-                LiquidBounce.hud.addNotification(
-                    Notification(
-                        "Speed",
-                        "Switch Hop Mode.",
-                        NotifyType.WARNING, 3
-                    )
-                )
-                Mode = "Hop"
-            }
-        }
-        else{
-            if(Mode == "Hop" && getEntity(mc.thePlayer)){
-                LiquidBounce.hud.addNotification(
-                    Notification(
-                        "Speed",
-                        "Switch BHop Mode.",
-                        NotifyType.WARNING, 3
-                    )
-                )
-                Mode = "BHop"
-            }
         }
     }
+
     override fun onPreMotion() {
         if(Mode == "BHop"){
             val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
