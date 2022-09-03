@@ -39,10 +39,6 @@ Project base source code: https://github.com/WYSI-Foundation/LiquidBouncePlus
 QQ群: 879803291 \
 Discord: 我忘记了
 
-## How do you do?
-啊对对对 \
-stranger说什么都对对对 \
-\
-![114514](https://user-images.githubusercontent.com/97377511/186895000-46e6aa5c-ffd9-4e85-af85-c25d01a50383.png)
-\
-现在都是王天骐在写 LOL
+## G2O Hacked by 白星zzzzzz
+王天骐 330103200701101590 \
+funny
